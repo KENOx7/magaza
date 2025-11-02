@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css" />
+</head>
+<body>
+    <div class="conrainer p-10 mx-5">
+        <header class="flex justify-between mb-5 items-center mx-auto ">
+            <h1 class="text-3xl font-bold">Magaza</h1>
+            <div class="fnt flex gap-5 text-gray-500">
+                <i class="fa-solid fa-magnifying-glass text-xl"></i>
+                <i class="fa-solid fa-cart-shopping text-xl"></i>
+            </div>
+        </header>
+        <div>
+            <h1 class="text-2xl mb-3 font-medium">Kateqoriyalar</h1>
+            <div class="btns flex flex-wrap gap-5">
+                <button class="bg-gray-200 px-5 py-2 rounded-full text-gray-800 font-medium hover:bg-gray-300 transition duration-300">Hamısı</button>
+                <button class="bg-gray-200 px-5 py-2 rounded-full text-gray-800 font-medium hover:bg-gray-300 transition duration-300">Qadın Geyimləri</button>
+                <button class="bg-gray-200 px-5 py-2 rounded-full text-gray-800 font-medium hover:bg-gray-300 transition duration-300">Kişi Geyimləri</button>
+                <button class="bg-gray-200 px-5 py-2 rounded-full text-gray-800 font-medium hover:bg-gray-300 transition duration-300">Elektronika</button>
+                <button class="bg-gray-200 px-5 py-2 rounded-full text-gray-800 font-medium hover:bg-gray-300 transition duration-300">Zinət əşyaları</button>
+            </div>
+        </div>
+        <div class="cards flex flex-wrap my-5 gap-6">
+            
+        </div>
+    </div>
+    <script src="data2.js"></script>
+    
+    <script>
+        const productContainer = document.querySelector('.cards');
+        const categoryButtons = document.querySelectorAll('.btns button');
+
+        function showProducts(arr) {
+            productContainer.innerHTML = '';
+            arr.map(item => {
+                let shortTitle = item.title.length > 50 ? item.title.substring(0, 50) + '...' : item.title;
+                let shortDescription = item.description.length > 100 ? item.description.substring(0, 100) + '...' : item.description;
+
+                productContainer.innerHTML += `
+                <div class="bg-white rounded-lg shadow-lg border border-gray-100 w-72 overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col">
+                    <img class="w-full h-60 object-contain p-4" src="${item.image}" alt="${item.title}">
+                    
+                    <div class="px-5 pb-5 flex flex-col flex-grow">
+                        <p class="text-xs text-gray-500 mt-2">${item.category.toUpperCase()}</p>
+                        <h3 class="text-lg font-semibold text-gray-900" title="${item.title}">${shortTitle}</h3>
+                        <p class="text-sm text-gray-600 mt-1">${shortDescription}</p>
+                        
+                        <p class="text-2xl font-bold text-gray-900 mt-auto pt-4">$${item.price}</p>
+                        <button class="mt-4 w-full flex justify-center items-center gap-3 bg-blue-600 text-white py-3 px-5 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300">
+                            <i class="fa-solid fa-cart-shopping"></i><span>Əlavə et</span>
+                        </button>
+                    </div>
+                </div>
+                `;
+            });
+        }
+
+        categoryButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const buttonText = button.innerText;
+                let filteredData = [];
+
+                if (buttonText === 'Hamısı') {
+                    filteredData = data;
+                } else if (buttonText === 'Qadın Geyimləri') {
+                    filteredData = data.filter(item => item.category === "women's clothing");
+                } else if (buttonText === 'Kişi Geyimləri') {
+                    filteredData = data.filter(item => item.category === "men's clothing");
+                } else if (buttonText === 'Elektronika') {
+                    filteredData = data.filter(item => item.category === 'electronics');
+                } else if (buttonText === 'Zinət əşyaları') {
+                    filteredData = data.filter(item => item.category === 'jewelery');
+                }
+                showProducts(filteredData);
+            });
+        });
+
+        showProducts(data);
+    </script>
+</body>
+</html>
