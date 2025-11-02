@@ -33,55 +33,84 @@
     <script src="data2.js"></script>
     
     <script>
-        const productContainer = document.querySelector('.cards');
-        const categoryButtons = document.querySelectorAll('.btns button');
+        const productContainer = document.querySelector('.cards')
+        const categoryButtons = document.querySelectorAll('.btns button')
 
         function showProducts(arr) {
-            productContainer.innerHTML = '';
-            arr.map(item => {
-                let shortTitle = item.title.length > 50 ? item.title.substring(0, 50) + '...' : item.title;
-                let shortDescription = item.description.length > 100 ? item.description.substring(0, 100) + '...' : item.description;
+        productContainer.innerHTML = ''
 
-                productContainer.innerHTML += `
-                <div class="bg-white rounded-lg shadow-lg border border-gray-100 w-72 overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col">
-                    <img class="w-full h-60 object-contain p-4" src="${item.image}" alt="${item.title}">
-                    
-                    <div class="px-5 pb-5 flex flex-col flex-grow">
-                        <p class="text-xs text-gray-500 mt-2">${item.category.toUpperCase()}</p>
-                        <h3 class="text-lg font-semibold text-gray-900" title="${item.title}">${shortTitle}</h3>
-                        <p class="text-sm text-gray-600 mt-1">${shortDescription}</p>
-                        
-                        <p class="text-2xl font-bold text-gray-900 mt-auto pt-4">$${item.price}</p>
-                        <button class="mt-4 w-full flex justify-center items-center gap-3 bg-blue-600 text-white py-3 px-5 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300">
-                            <i class="fa-solid fa-cart-shopping"></i><span>Əlavə et</span>
-                        </button>
-                    </div>
+        arr.map(function(item) {
+            let shortTitle = item.title
+            if (item.title.length > 50) {
+            shortTitle = item.title.substring(0, 50) + '...'
+            }
+
+            let shortDescription = item.description
+            if (item.description.length > 100) {
+            shortDescription = item.description.substring(0, 100) + '...'
+            }
+
+            productContainer.innerHTML += `
+            <div class="bg-white rounded-lg shadow-lg border w-72 overflow-hidden flex flex-col">
+                <img class="w-full h-60 object-contain p-4" src="${item.image}" alt="${item.title}">
+                <div class="px-5 pb-5 flex flex-col flex-grow">
+                <p class="text-xs text-gray-500 mt-2">${item.category.toUpperCase()}</p>
+                <h3 class="text-lg font-semibold text-gray-900">${shortTitle}</h3>
+                <p class="text-sm text-gray-600 mt-1">${shortDescription}</p>
+                <p class="text-2xl font-bold text-gray-900 mt-auto pt-4">$${item.price}</p>
+                <button class="mt-4 w-full bg-blue-600 text-white py-3 px-5 rounded-lg font-semibold">
+                    <i class="fa-solid fa-cart-shopping"></i> Əlavə et
+                </button>
                 </div>
-                `;
-            });
+            </div>
+            `
+        })
         }
 
-        categoryButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const buttonText = button.innerText;
-                let filteredData = [];
+        categoryButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            categoryButtons.forEach(function(btn) {
+            btn.classList.remove('bg-blue-600', 'text-white')
+            btn.classList.add('bg-gray-200', 'text-gray-800')
+            })
 
-                if (buttonText === 'Hamısı') {
-                    filteredData = data;
-                } else if (buttonText === 'Qadın Geyimləri') {
-                    filteredData = data.filter(item => item.category === "women's clothing");
-                } else if (buttonText === 'Kişi Geyimləri') {
-                    filteredData = data.filter(item => item.category === "men's clothing");
-                } else if (buttonText === 'Elektronika') {
-                    filteredData = data.filter(item => item.category === 'electronics');
-                } else if (buttonText === 'Zinət əşyaları') {
-                    filteredData = data.filter(item => item.category === 'jewelery');
-                }
-                showProducts(filteredData);
-            });
-        });
+            button.classList.add('bg-blue-600', 'text-white')
+            button.classList.remove('bg-gray-200', 'text-gray-800')
 
-        showProducts(data);
+            let buttonText = button.innerText
+            let filteredData = []
+
+            if (buttonText === 'Hamısı') {
+            filteredData = data
+            } else if (buttonText === 'Qadın Geyimləri') {
+            filteredData = data.filter(function(item) {
+                return item.category === "women's clothing"
+            })
+            } else if (buttonText === 'Kişi Geyimləri') {
+            filteredData = data.filter(function(item) {
+                return item.category === "men's clothing"
+            })
+            } else if (buttonText === 'Elektronika') {
+            filteredData = data.filter(function(item) {
+                return item.category === "electronics"
+            })
+            } else if (buttonText === 'Zinət əşyaları') {
+            filteredData = data.filter(function(item) {
+                return item.category === "jewelery"
+            })
+            }
+
+            showProducts(filteredData)
+        })
+        })
+
+        showProducts(data)
+
+        if (categoryButtons.length > 0) {
+        categoryButtons[0].classList.add('bg-blue-600', 'text-white')
+        categoryButtons[0].classList.remove('bg-gray-200', 'text-gray-800')
+        }
+
     </script>
 </body>
 </html>
