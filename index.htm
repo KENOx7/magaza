@@ -6,14 +6,35 @@
     <title>Document</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css" />
-</head>
-<body>
+    <style>
+        #sebet { 
+            position: fixed;
+            top: 0;
+            right: -100%; 
+            width: 100%; 
+            max-width: 400px;
+            height: 100vh;
+            background-color: white;
+            transition: 0.3s;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+    </head>
+<body class="bg-gray-50">
     <div class="conrainer p-10 mx-5">
         <header class="flex justify-between mb-5 items-center mx-auto ">
             <h1 class="text-3xl font-bold">Magaza</h1>
-            <div class="fnt flex gap-5 text-gray-500">
+            <div class="fnt flex gap-5 text-gray-500 items-center"> 
                 <i class="fa-solid fa-magnifying-glass text-xl"></i>
-                <i class="fa-solid fa-cart-shopping text-xl"></i>
+                
+                <div class="relative cursor-pointer">
+                    <i id="cart-icon" class="fa-solid fa-cart-shopping text-xl"></i> 
+                    <span id="cart-count-badge" class="absolute -top-2 -right-3 bg-blue-600 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center hidden">
+                        0
+                    </span>
+                </div>
             </div>
         </header>
         <div>
@@ -27,89 +48,199 @@
             </div>
         </div>
         <div class="cards flex flex-wrap my-5 gap-6">
-            
+            </div>
+    </div>
+
+    <div id="sebet">
+        <div class="flex justify-between items-center p-4 border-b">
+            <h2 class="text-xl font-bold">Səbətiniz</h2>
+            <button id="close-menu-btn" class="text-2xl text-gray-600 hover:text-gray-900">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+
+        <div id="cart-items-container" class="flex-grow p-4 overflow-y-auto">
+            </div>
+
+        <div class="p-4 border-t bg-gray-50">
+            <div class="flex justify-between items-center mb-4">
+                <span class="text-lg font-medium text-gray-700">Toplam:</span>
+                <span id="cart-total-price" class="text-2xl font-bold text-gray-900">$0.00</span>
+            </div>
+            <button class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700">
+                Sifarişi tamamla
+            </button>
         </div>
     </div>
     <script src="data2.js"></script>
     
     <script>
-        const productContainer = document.querySelector('.cards')
-        const categoryButtons = document.querySelectorAll('.btns button')
+        const productContainer = document.querySelector('.cards');
+        const categoryButtons = document.querySelectorAll('.btns button');
+        const cartBadge = document.getElementById("cart-count-badge");
+        
+        const sebet = document.getElementById('sebet'); 
+        const cartIcon = document.getElementById('cart-icon');
+        const closeMenuButton = document.getElementById('close-menu-btn');
+        const cartItemsContainer = document.getElementById('cart-items-container');
+        const cartTotalPriceEl = document.getElementById('cart-total-price');
+
+        let cart = []; 
+
+        function openmenu() {
+            renderCartItems(); 
+            sebet.style.right = '0'; 
+        }
+
+        function closemenu() {
+            sebet.style.right = '-100%';
+        }
+        
+        function updateCartBadge() {
+            let totalItems = 0;
+            cart.forEach(item => {
+                totalItems += item.quantity;
+            });
+            cartBadge.innerText = totalItems;
+            if (totalItems > 0) {
+                cartBadge.classList.remove("hidden");
+            } else {
+                cartBadge.classList.add("hidden");
+            }
+        }
+
+        function renderCartItems() {
+            cartItemsContainer.innerHTML = '';
+            let totalPrice = 0;
+
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = '<p class="text-gray-500 text-center mt-4">Səbətiniz boşdur.</p>';
+                cartTotalPriceEl.innerText = '$0.00';
+                return;
+            }
+
+            cart.forEach(item => {
+                const itemTotalPrice = item.price * item.quantity;
+                totalPrice += itemTotalPrice;
+
+                cartItemsContainer.innerHTML += `
+                    <div class="flex items-center gap-4 mb-4 border-b pb-4">
+                        <img src="${item.image}" alt="${item.title}" class="w-20 h-20 object-contain rounded border p-1">
+                        <div class="flex-grow">
+                            <h4 class="text-sm font-medium">${item.title}</h4>
+                            <p class="text-xs text-gray-600">${item.quantity} x $${item.price}</p>
+                            <p class="text-sm font-bold text-blue-600">$${itemTotalPrice.toFixed(2)}</p>
+                        </div>
+                        <button class="remove-from-cart-btn text-red-500 hover:text-red-700" data-product-id="${item.id}">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                `;
+            });
+
+            cartTotalPriceEl.innerText = `$${totalPrice.toFixed(2)}`;
+        }
+
+        function addItemToCart(productId) {
+            const existingItem = cart.find(item => item.id == productId);
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                const productToAdd = data.find(item => item.id == productId);
+                if (productToAdd) {
+                    cart.push({ ...productToAdd, quantity: 1 });
+                }
+            }
+            updateCartBadge();
+            renderCartItems(); 
+            console.log("Səbət yeniləndi:", cart);
+        }
+
+        function removeItemFromCart(productId) {
+            cart = cart.filter(item => item.id != productId);
+            updateCartBadge();
+            renderCartItems();
+        }
 
         function showProducts(arr) {
-        productContainer.innerHTML = ''
+            productContainer.innerHTML = '';
+            arr.map(function(item) {
+                let shortTitle = item.title.length > 50 ? item.title.substring(0, 50) + '...' : item.title;
+                let shortDescription = item.description.length > 100 ? item.description.substring(0, 100) + '...' : item.description;
 
-        arr.map(function(item) {
-            let shortTitle = item.title
-            if (item.title.length > 50) {
-            shortTitle = item.title.substring(0, 50) + '...'
-            }
-
-            let shortDescription = item.description
-            if (item.description.length > 100) {
-            shortDescription = item.description.substring(0, 100) + '...'
-            }
-
-            productContainer.innerHTML += `
-            <div class="bg-white rounded-lg shadow-lg border w-72 overflow-hidden flex flex-col">
-                <img class="w-full h-60 object-contain p-4" src="${item.image}" alt="${item.title}">
-                <div class="px-5 pb-5 flex flex-col flex-grow">
-                <p class="text-xs text-gray-500 mt-2">${item.category.toUpperCase()}</p>
-                <h3 class="text-lg font-semibold text-gray-900">${shortTitle}</h3>
-                <p class="text-sm text-gray-600 mt-1">${shortDescription}</p>
-                <p class="text-2xl font-bold text-gray-900 mt-auto pt-4">$${item.price}</p>
-                <button class="mt-4 w-full bg-blue-600 text-white py-3 px-5 rounded-lg font-semibold">
-                    <i class="fa-solid fa-cart-shopping"></i> Əlavə et
-                </button>
+                productContainer.innerHTML += `
+                <div class="bg-white rounded-lg shadow-lg border w-72 overflow-hidden flex flex-col">
+                    <img class="w-full h-60 object-contain p-4" src="${item.image}" alt="${item.title}">
+                    <div class="px-5 pb-5 flex flex-col flex-grow">
+                        <p class="text-xs text-gray-500 mt-2">${item.category.toUpperCase()}</p>
+                        <h3 class="text-lg font-semibold text-gray-900">${shortTitle}</h3>
+                        <p class="text-sm text-gray-600 mt-1">${shortDescription}</p>
+                        <p class="text-2xl font-bold text-gray-900 mt-auto pt-4">$${item.price}</p>
+                        
+                        <button class="add-to-cart-btn mt-4 w-full bg-blue-600 text-white py-3 px-5 rounded-lg font-semibold" data-product-id="${item.id}">
+                            <i class="fa-solid fa-cart-shopping"></i> Əlavə et
+                        </button>
+                    </div>
                 </div>
-            </div>
-            `
-        })
+                `;
+            });
         }
+
+        cartIcon.addEventListener('click', openmenu);
+        closeMenuButton.addEventListener('click', closemenu);
+
+        productContainer.addEventListener('click', function(event) {
+            const button = event.target.closest('.add-to-cart-btn');
+            if (button) {
+                const productId = button.dataset.productId;
+                addItemToCart(productId);
+            }
+        });
+
+        sebet.addEventListener('click', function(event) { 
+            const button = event.target.closest('.remove-from-cart-btn');
+            if (button) {
+                const productId = button.dataset.productId;
+                removeItemFromCart(productId);
+            }
+        });
 
         categoryButtons.forEach(function(button) {
-        button.addEventListener('click', function() {
-            categoryButtons.forEach(function(btn) {
-            btn.classList.remove('bg-blue-600', 'text-white')
-            btn.classList.add('bg-gray-200', 'text-gray-800')
-            })
+            button.addEventListener('click', function() {
+                categoryButtons.forEach(btn => {
+                    btn.classList.remove('bg-blue-600', 'text-white');
+                    btn.classList.add('bg-gray-200', 'text-gray-800');
+                });
+                button.classList.add('bg-blue-600', 'text-white');
+                button.classList.remove('bg-gray-200', 'text-gray-800');
 
-            button.classList.add('bg-blue-600', 'text-white')
-            button.classList.remove('bg-gray-200', 'text-gray-800')
+                let buttonText = button.innerText;
+                let filteredData = [];
 
-            let buttonText = button.innerText
-            let filteredData = []
+                if (buttonText === 'Hamısı') {
+                    filteredData = data;
+                } else if (buttonText === 'Qadın Geyimləri') {
+                    filteredData = data.filter(item => item.category === "women's clothing");
+                } else if (buttonText === 'Kişi Geyimləri') {
+                    filteredData = data.filter(item => item.category === "men's clothing");
+                } else if (buttonText === 'Elektronika') {
+                    filteredData = data.filter(item => item.category === "electronics");
+                } else if (buttonText === 'Zinət əşyaları') {
+                    filteredData = data.filter(item => item.category === "jewelery");
+                }
 
-            if (buttonText === 'Hamısı') {
-            filteredData = data
-            } else if (buttonText === 'Qadın Geyimləri') {
-            filteredData = data.filter(function(item) {
-                return item.category === "women's clothing"
-            })
-            } else if (buttonText === 'Kişi Geyimləri') {
-            filteredData = data.filter(function(item) {
-                return item.category === "men's clothing"
-            })
-            } else if (buttonText === 'Elektronika') {
-            filteredData = data.filter(function(item) {
-                return item.category === "electronics"
-            })
-            } else if (buttonText === 'Zinət əşyaları') {
-            filteredData = data.filter(function(item) {
-                return item.category === "jewelery"
-            })
-            }
+                showProducts(filteredData);
+            });
+        });
 
-            showProducts(filteredData)
-        })
-        })
-
-        showProducts(data)
+        showProducts(data);
 
         if (categoryButtons.length > 0) {
-        categoryButtons[0].classList.add('bg-blue-600', 'text-white')
-        categoryButtons[0].classList.remove('bg-gray-200', 'text-gray-800')
+            categoryButtons[0].classList.add('bg-blue-600', 'text-white');
+            categoryButtons[0].classList.remove('bg-gray-200', 'text-gray-800');
         }
+
+        updateCartBadge(); 
 
     </script>
 </body>
